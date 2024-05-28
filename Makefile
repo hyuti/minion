@@ -1,0 +1,2 @@
+racedetector:
+	go test -race ./
