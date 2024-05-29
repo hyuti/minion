@@ -41,11 +41,10 @@ func TestMinion_Start(t *testing.T) {
 			gru := minion.New[any]()
 			gru.WithEvent(func(_ any) {
 			})
-			gru.AddMinionWithCtx(ctx, func(ctx context.Context) any {
+			gru.StartWithCtx(ctx, func(ctx context.Context) any {
 				time.Sleep(2 * time.Second)
 				return nil
 			})
-			gru.Start()
 			tc.expect(t, gru.Error())
 		})
 	}

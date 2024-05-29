@@ -10,10 +10,12 @@ import (
 
 var ErrTimeout = errors.New("timeout elapsed")
 
+// Minion is basically a function wrapping your passing functions with internal additional logics.
+type Minion func()
+
 // Gru running multiple tasks concurrently by taking advantage of goroutines
 // A tool to reduce boilerplate of handling goroutines.
 type Gru[T any] struct {
-	jobs       []func()
 	eventJob   func(int)
 	errHandler func(error)
 	wg         sync.WaitGroup
@@ -27,14 +29,8 @@ func New[T any]() *Gru[T] {
 	return w
 }
 
-func (w *Gru[T]) AddMinion(job func() T) *Gru[T] {
-	return w.AddMinionWithCtx(context.Background(), func(_ context.Context) T {
-		return job()
-	})
-}
-
-func (w *Gru[T]) AddMinionWithCtx(ctx context.Context, job func(context.Context) T) *Gru[T] {
-	wrapper := func() {
+func (w *Gru[T]) Wrap(ctx context.Context, job func(context.Context) T) Minion {
+	return func() {
 		defer func() {
 			if r := recover(); r != nil {
 				if w.errCh == nil {
@@ -61,28 +57,42 @@ func (w *Gru[T]) AddMinionWithCtx(ctx context.Context, job func(context.Context)
 			}
 		}
 	}
-	w.jobs = append(w.jobs, wrapper)
-	return w
 }
 
-func (w *Gru[T]) Start() {
-	for idx := range w.jobs {
-		w.wg.Add(1)
+func (w *Gru[T]) StartWithCtx(ctx context.Context, jobs ...func(context.Context) T) {
+	minions := make([]Minion, len(jobs))
+	for idx, job := range jobs {
+		minions[idx] = w.Wrap(ctx, job)
+	}
+	w.wg.Add(len(minions))
+	for idx := range minions {
 		go func(_idx int) {
 			defer w.wg.Done()
-			w.jobs[_idx]()
+			minions[_idx]()
 		}(idx)
 	}
+
 	if w.eventJob != nil {
 		w.wg.Add(1)
 		go func() {
 			defer w.wg.Done()
-			w.eventJob(len(w.jobs))
+			w.eventJob(len(minions))
 		}()
 	}
 
 	w.wg.Wait()
 	w.clean()
+}
+
+func (w *Gru[T]) Start(jobs ...func() T) {
+	ctx := context.Background()
+	ctxJobs := make([]func(context.Context) T, len(jobs))
+	for idx, job := range jobs {
+		ctxJobs[idx] = func(_ context.Context) T {
+			return job()
+		}
+	}
+	w.StartWithCtx(ctx, ctxJobs...)
 }
 
 func (w *Gru[T]) clean() {

@@ -1,4 +1,4 @@
-module invokingmultirequestes
+module invokingmultirequestswithtimeout
 
 go 1.22.3
 

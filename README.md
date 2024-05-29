@@ -6,5 +6,5 @@ Copy and paste the following command into your preferable terminal:
 ```sh 
 go get -u github.com/hyuti/minion 
 ```
-
 ## Example
+See folder [example](https://github.com/hyuti/minion/tree/main/example) for further details
