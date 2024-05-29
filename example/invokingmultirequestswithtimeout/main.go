@@ -29,22 +29,19 @@ func main() {
 	// to release resource
 	defer cancel()
 
-	// use AddMinionWithCtx instead of AddMinion to pass context with timeout already defined above.
-	gru.AddMinionWithCtx(ctx, func(ctx context.Context) *response {
-		return invokeRequest(ctx)
-	})
-	gru.AddMinionWithCtx(ctx, func(ctx context.Context) *response {
-		return invokeRequest(ctx)
-	})
-
-	// the rest is the same as the invokingmultirequests example
 	gru.WithEvent(func(r *response) {
 		if r == nil {
 			return
 		}
 		log.Println(r.msg)
 	})
-	gru.Start()
+
+	// use StartWithCtx instead of Start to pass context with timeout already defined above.
+	gru.StartWithCtx(ctx, func(ctx context.Context) *response {
+		return invokeRequest(ctx)
+	}, func(ctx context.Context) *response {
+		return invokeRequest(ctx)
+	})
 
 	// error at this moment must not be nil because of timeout elapsed
 	// the output will be like:

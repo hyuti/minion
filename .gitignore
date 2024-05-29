@@ -22,3 +22,5 @@ go.work
 
 /venv
 /.idea
+
+.DS_Store

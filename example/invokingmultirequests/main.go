@@ -27,13 +27,6 @@ func invokeRequest(_ context.Context) *response {
 func main() {
 	gru := minion.New[*response]()
 
-	gru.AddMinion(func() *response {
-		return invokeRequest(context.Background())
-	})
-	gru.AddMinion(func() *response {
-		return invokeRequest(context.Background())
-	})
-
 	// WithEvent allows us to add necessary logics after every complete minion
 	gru.WithEvent(func(r *response) {
 		if r == nil {
@@ -42,7 +35,11 @@ func main() {
 		log.Println(r.msg)
 	})
 	// don't forget to call start after setting up minions
-	gru.Start()
+	gru.Start(func() *response {
+		return invokeRequest(context.Background())
+	}, func() *response {
+		return invokeRequest(context.Background())
+	})
 
 	// handle error happened among the minions
 	if err := gru.Error(); err != nil {
