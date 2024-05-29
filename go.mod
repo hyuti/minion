@@ -1,4 +1,4 @@
-module minion
+module github.com/hyuti/minion
 
 go 1.22.3
 

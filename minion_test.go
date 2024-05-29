@@ -2,8 +2,8 @@ package minion_test
 
 import (
 	"context"
+	"github.com/hyuti/minion"
 	"github.com/stretchr/testify/require"
-	"minion"
 	"testing"
 	"time"
 )
