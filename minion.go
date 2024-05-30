@@ -32,12 +32,14 @@ func New[T any]() *Gru[T] {
 func (w *Gru[T]) Wrap(ctx context.Context, job func(context.Context) T) Minion {
 	return func() {
 		defer func() {
-			if r := recover(); r != nil {
-				if w.errCh == nil {
-					return
-				}
-				w.errCh <- errors.New(string(debug.Stack()))
+			r := recover()
+			if r == nil {
+				return
 			}
+			if w.errCh == nil {
+				return
+			}
+			w.errCh <- errors.New(string(debug.Stack()))
 		}()
 		resultChan := make(chan T)
 		go func(c chan T) {
@@ -84,8 +86,8 @@ func (w *Gru[T]) StartWithCtx(ctx context.Context, jobs ...func(context.Context)
 }
 
 func (w *Gru[T]) Start(jobs ...func() T) {
-	ctx := context.Background()
 	ctxJobs := make([]func(context.Context) T, len(jobs))
+	ctx := context.Background()
 	for idx, job := range jobs {
 		ctxJobs[idx] = func(_ context.Context) T {
 			return job()
@@ -117,12 +119,14 @@ func (w *Gru[T]) WithEvent(h func(T)) {
 	w.ch = make(chan T, 1)
 	w.eventJob = func(limit int) {
 		defer func() {
-			if r := recover(); r != nil {
-				if w.errCh == nil {
-					return
-				}
-				w.errCh <- errors.New(string(debug.Stack()))
+			r := recover()
+			if r == nil {
+				return
 			}
+			if w.errCh == nil {
+				return
+			}
+			w.errCh <- errors.New(string(debug.Stack()))
 		}()
 		for ; limit > 0; limit -= 1 {
 			select {
