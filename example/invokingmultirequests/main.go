@@ -5,7 +5,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/hyuti/minion"
 	"log"
 	"time"
@@ -44,6 +43,6 @@ func main() {
 
 	// handle error happened among the minions
 	if err := gru.Error(); err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 }
