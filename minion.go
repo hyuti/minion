@@ -81,7 +81,6 @@ func (w *Gru[T]) StartWithCtx(ctx context.Context, jobs ...func(context.Context)
 	}
 
 	w.wg.Wait()
-	w.clean()
 }
 
 func (w *Gru[T]) Start(jobs ...func() T) {
@@ -95,7 +94,8 @@ func (w *Gru[T]) Start(jobs ...func() T) {
 	w.StartWithCtx(ctx, ctxJobs...)
 }
 
-func (w *Gru[T]) clean() {
+// Clean should be called after done using this module
+func (w *Gru[T]) Clean() {
 	if w.ch != nil {
 		close(w.ch)
 	}
