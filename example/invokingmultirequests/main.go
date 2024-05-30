@@ -26,6 +26,7 @@ func invokeRequest(_ context.Context) *response {
 }
 func main() {
 	gru := minion.New[*response]()
+	defer gru.Clean()
 
 	// WithEvent allows us to add necessary logics after every complete minion
 	gru.WithEvent(func(r *response) {

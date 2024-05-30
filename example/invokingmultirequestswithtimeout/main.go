@@ -24,6 +24,7 @@ func invokeRequest(_ context.Context) *response {
 }
 func main() {
 	gru := minion.New[*response]()
+	defer gru.Clean()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	// to release resource
