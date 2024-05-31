@@ -1,10 +1,8 @@
-package main
-
-// This example demonstrates timeout constraint set up for minions
-// to utilize timeout feature we use context with timeout provided by gopkg
+package minion_test
 
 import (
 	"context"
+	"fmt"
 	"github.com/hyuti/minion"
 	"log"
 	"time"
@@ -15,14 +13,42 @@ type response struct {
 }
 
 func invokeRequest(_ context.Context) *response {
-	log.Println("sleeping in 2 seconds")
-	// took longer than 1 second which is timeout
+	//	not doing special
+	//	just simulate a long-running invoking request
+	fmt.Println("sleeping in 2 seconds")
+	// Output: sleeping in 2 seconds
 	time.Sleep(2 * time.Second)
 	return &response{
 		msg: "done",
 	}
 }
-func main() {
+
+func ExampleGru_Start() {
+	gru := minion.New[*response]()
+	defer gru.Clean()
+
+	// WithEvent allows us to add necessary logics after every complete minion
+	gru.WithEvent(func(r *response) {
+		if r == nil {
+			return
+		}
+		fmt.Println(r.msg)
+		// Output: done
+	})
+
+	gru.Start(func() *response {
+		return invokeRequest(context.Background())
+	}, func() *response {
+		return invokeRequest(context.Background())
+	})
+
+	// handle error happened among the minions
+	if err := gru.Error(); err != nil {
+		log.Println(err)
+	}
+}
+
+func ExampleGru_StartWithCtx() {
 	gru := minion.New[*response]()
 	defer gru.Clean()
 
@@ -34,7 +60,8 @@ func main() {
 		if r == nil {
 			return
 		}
-		log.Println(r.msg)
+		fmt.Println(r.msg)
+		// Output: done
 	})
 
 	// use StartWithCtx instead of Start to pass context with timeout already defined above.

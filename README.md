@@ -7,4 +7,5 @@ Copy and paste the following command into your preferable terminal:
 go get -u github.com/hyuti/minion 
 ```
 ## Example
-See folder [example](https://github.com/hyuti/minion/tree/main/example) for further details
+
+See folder [example](https://github.com/hyuti/minion/blob/main/example_test.go) for further details
