@@ -8,4 +8,4 @@ go get -u github.com/hyuti/minion
 ```
 ## Example
 
-See folder [example](https://github.com/hyuti/minion/blob/main/example_test.go) for further details
+See [examples](https://github.com/hyuti/minion/blob/main/example_test.go) for further details
